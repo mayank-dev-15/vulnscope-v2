@@ -1,4 +1,4 @@
-# VulnScope v2 - Backend Requirements
+# VulnScope v2 - Backend Requirements (Enhanced)
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 websockets==13.0

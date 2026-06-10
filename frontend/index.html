@@ -3,149 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VulnScope v2 — Real-Time CVE Feed</title>
+<title>VulnScope v2.5 — Advanced CVE Intelligence</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <div class="app">
-  <!-- Header -->
   <header class="header">
     <div class="header-left">
-      <h1>🔴 VulnScope <span class="version">v2</span></h1>
-      <span class="subtitle">Real-Time CVE Feed & Exploit Correlation</span>
+      <h1>🔴 VulnScope <span class="version">v2.5</span></h1>
+      <span class="subtitle">ML-Powered CVE Intelligence · EPSS · ATT&CK · Threat Intel · Risk Engine</span>
     </div>
     <div class="header-right">
-      <div class="connection-status" id="wsStatus">
-        <span class="dot"></span>
-        <span class="status-text">Connecting...</span>
-      </div>
+      <div class="connection-status" id="wsStatus"><span class="dot"></span><span class="status-text">Connecting...</span></div>
       <div class="live-badge">LIVE</div>
-      <button class="btn-icon" id="themeToggle" title="Toggle theme">🌓</button>
+      <button class="btn-icon" id="themeToggle">🌓</button>
     </div>
   </header>
 
-  <!-- Stats Bar -->
+  <!-- Enhanced Stats Bar -->
   <div class="stats-bar" id="statsBar">
-    <div class="stat-card critical">
-      <div class="stat-icon">🔥</div>
-      <div class="stat-info">
-        <span class="stat-value" id="statCritical">0</span>
-        <span class="stat-label">Critical</span>
-      </div>
-    </div>
-    <div class="stat-card high">
-      <div class="stat-icon">⚠️</div>
-      <div class="stat-info">
-        <span class="stat-value" id="statHigh">0</span>
-        <span class="stat-label">High</span>
-      </div>
-    </div>
-    <div class="stat-card exploit">
-      <div class="stat-icon">💥</div>
-      <div class="stat-info">
-        <span class="stat-value" id="statExploits">0</span>
-        <span class="stat-label">With Exploits</span>
-      </div>
-    </div>
-    <div class="stat-card total">
-      <div class="stat-icon">📦</div>
-      <div class="stat-info">
-        <span class="stat-value" id="statTotal">0</span>
-        <span class="stat-label">Total CVEs</span>
-      </div>
-    </div>
-    <div class="stat-card ransomware">
-      <div class="stat-icon">☠️</div>
-      <div class="stat-info">
-        <span class="stat-value" id="statRansomware">0</span>
-        <span class="stat-label">Ransomware</span>
-      </div>
-    </div>
-    <div class="stat-card kev">
-      <div class="stat-icon">🛡️</div>
-      <div class="stat-info">
-        <span class="stat-value" id="statKEV">0</span>
-        <span class="stat-label">CISA KEV</span>
-      </div>
-    </div>
+    <div class="stat-card critical"><div class="stat-icon">🔥</div><div class="stat-info"><span class="stat-value" id="statCritical">0</span><span class="stat-label">Critical</span></div></div>
+    <div class="stat-card high"><div class="stat-icon">⚠️</div><div class="stat-info"><span class="stat-value" id="statHigh">0</span><span class="stat-label">High</span></div></div>
+    <div class="stat-card exploit"><div class="stat-icon">💥</div><div class="stat-info"><span class="stat-value" id="statExploits">0</span><span class="stat-label">With Exploits</span></div></div>
+    <div class="stat-card total"><div class="stat-icon">📦</div><div class="stat-info"><span class="stat-value" id="statTotal">0</span><span class="stat-label">Total CVEs</span></div></div>
+    <div class="stat-card ransomware"><div class="stat-icon">☠️</div><div class="stat-info"><span class="stat-value" id="statRansomware">0</span><span class="stat-label">Ransomware</span></div></div>
+    <div class="stat-card kev"><div class="stat-icon">🛡️</div><div class="stat-info"><span class="stat-value" id="statKEV">0</span><span class="stat-label">CISA KEV</span></div></div>
+    <div class="stat-card epss"><div class="stat-icon">🎯</div><div class="stat-info"><span class="stat-value" id="statEPSS">0</span><span class="stat-label">Avg EPSS</span></div></div>
+    <div class="stat-card risk"><div class="stat-icon">🔮</div><div class="stat-info"><span class="stat-value" id="statRisk">-</span><span class="stat-label">Top Risk</span></div></div>
   </div>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="feed">📡 Live Feed</button>
+    <button class="nav-tab" data-tab="trends">📊 Trends</button>
+    <button class="nav-tab" data-tab="ml">🤖 ML Insights</button>
+    <button class="nav-tab" data-tab="attack">🎯 ATT&CK Map</button>
+    <button class="nav-tab" data-tab="threats">👤 Threat Actors</button>
+    <button class="nav-tab" data-tab="similar">🔗 Similarity</button>
+    <button class="nav-tab" data-tab="reports">📋 Reports</button>
+  </nav>
 
   <!-- Controls -->
   <div class="controls">
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search CVEs, vendors, descriptions..." autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Search CVEs, vendors, products, descriptions... Ctrl+K" autocomplete="off">
       <button id="searchBtn">🔍</button>
     </div>
     <div class="filters">
-      <select id="severityFilter">
-        <option value="">All Severities</option>
-        <option value="CRITICAL">🔥 Critical</option>
-        <option value="HIGH">⚠️ High</option>
-        <option value="MEDIUM">⚡ Medium</option>
-        <option value="LOW">🔵 Low</option>
-      </select>
-      <select id="exploitFilter">
-        <option value="">All CVEs</option>
-        <option value="true">Exploits Available</option>
-        <option value="false">No Exploits</option>
-      </select>
-      <select id="channelFilter">
-        <option value="all">All Channels</option>
-        <option value="critical">Critical Only</option>
-        <option value="high">High Only</option>
-      </select>
+      <select id="severityFilter"><option value="">All Severities</option><option value="CRITICAL">🔥 Critical</option><option value="HIGH">⚠️ High</option><option value="MEDIUM">⚡ Medium</option><option value="LOW">🔵 Low</option></select>
+      <select id="exploitFilter"><option value="">All CVEs</option><option value="true">Exploits Available</option></select>
+      <select id="riskFilter"><option value="">All Risk Levels</option><option value="CRITICAL_RISK">Critical Risk</option><option value="HIGH_RISK">High Risk</option><option value="MODERATE_RISK">Moderate</option></select>
+      <select id="channelFilter"><option value="all">All Channels</option><option value="critical">Critical Only</option><option value="high">High Only</option></select>
+      <select id="sortBy"><option value="published_date">Newest</option><option value="cvss">CVSS Score</option><option value="epss">EPSS Score</option><option value="risk">Risk Score</option></select>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="main-content">
-    <!-- Live Feed -->
-    <div class="feed-panel">
-      <div class="panel-header">
-        <h2>📡 Live CVE Feed</h2>
-        <span class="feed-counter" id="feedCounter">0 new</span>
+  <!-- Tab: Live Feed -->
+  <div class="tab-content active" id="tab-feed">
+    <div class="main-content">
+      <div class="feed-panel">
+        <div class="panel-header"><h2>📡 Live CVE Feed</h2><span class="feed-counter" id="feedCounter">0 new</span></div>
+        <div class="feed-container" id="cveFeed"><div class="feed-empty"><div class="empty-icon">🛰️</div><p>Waiting for CVE data...</p></div></div>
       </div>
-      <div class="feed-container" id="cveFeed">
-        <div class="feed-empty">
-          <div class="empty-icon">🛰️</div>
-          <p>Waiting for CVE data...</p>
-          <p class="hint">Feed updates automatically every 5 minutes from NVD</p>
-        </div>
+      <div class="detail-panel" id="detailPanel">
+        <div class="panel-header"><h2>📋 CVE Details</h2><button class="btn-close" id="closeDetail">✕</button></div>
+        <div class="detail-placeholder"><div class="placeholder-icon">👈</div><p>Select a CVE to view full intelligence</p></div>
+        <div class="detail-content" id="detailContent" style="display:none;"></div>
       </div>
     </div>
+  </div>
 
-    <!-- Detail Panel -->
-    <div class="detail-panel" id="detailPanel">
-      <div class="panel-header">
-        <h2>📋 CVE Details</h2>
-        <button class="btn-close" id="closeDetail">✕</button>
+  <!-- Tab: Trends -->
+  <div class="tab-content" id="tab-trends">
+    <div class="trends-grid">
+      <div class="trend-card wide">
+        <div class="panel-header"><h2>📈 Daily CVE Trend (30 days)</h2></div>
+        <div class="chart-container" id="dailyTrendChart"></div>
       </div>
-      <div class="detail-placeholder">
-        <div class="placeholder-icon">👈</div>
-        <p>Select a CVE from the feed to view details</p>
+      <div class="trend-card">
+        <div class="panel-header"><h2>🎯 Severity Distribution</h2></div>
+        <div class="chart-container" id="severityChart"></div>
       </div>
-      <div class="detail-content" id="detailContent" style="display:none;"></div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>🔬 Top CWE Weaknesses</h2></div>
+        <div class="list-container" id="topCWEs"></div>
+      </div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>🏢 Top Vendors</h2></div>
+        <div class="list-container" id="topVendors"></div>
+      </div>
+      <div class="trend-card wide">
+        <div class="panel-header"><h2>💥 Exploit Timeline</h2></div>
+        <div class="chart-container" id="exploitTimeline"></div>
+      </div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>☠️ Ransomware Families</h2></div>
+        <div class="list-container" id="ransomwareFamilies"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: ML Insights -->
+  <div class="tab-content" id="tab-ml">
+    <div class="ml-grid">
+      <div class="trend-card wide">
+        <div class="panel-header"><h2>🔮 Top Exploitation Risk CVEs</h2></div>
+        <div class="risk-table-container">
+          <table class="risk-table" id="topRiskTable"><thead><tr><th>CVE</th><th>Risk Score</th><th>Level</th><th>CVSS</th><th>EPSS</th><th>Description</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>📊 Risk Distribution</h2></div>
+        <div class="chart-container" id="riskDistChart"></div>
+      </div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>⚡ EPSS Statistics</h2></div>
+        <div class="stats-grid-inner" id="epssStats"></div>
+      </div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>🎲 Risk Factors Breakdown</h2></div>
+        <div class="list-container" id="riskFactors"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: ATT&CK Map -->
+  <div class="tab-content" id="tab-attack">
+    <div class="trends-grid">
+      <div class="trend-card wide">
+        <div class="panel-header"><h2>🎯 CVE → MITRE ATT&CK Mapping</h2></div>
+        <div class="attack-grid" id="attackGrid"></div>
+      </div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>📊 By Tactic</h2></div>
+        <div class="chart-container" id="tacticChart"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Threat Actors -->
+  <div class="tab-content" id="tab-threats">
+    <div class="trends-grid">
+      <div class="trend-card wide">
+        <div class="panel-header"><h2>👤 Threat Actor Activity</h2></div>
+        <div class="list-container" id="threatActorList"></div>
+      </div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>🌍 By Country</h2></div>
+        <div class="chart-container" id="countryChart"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Similarity -->
+  <div class="tab-content" id="tab-similar">
+    <div class="trend-card" style="max-width:800px;margin:0 auto;">
+      <div class="panel-header"><h2>🔗 Semantic CVE Similarity Search</h2></div>
+      <div class="search-box" style="margin-bottom:16px;">
+        <input type="text" id="similarSearchInput" placeholder="Describe a vulnerability... e.g. 'remote code execution in web server'" autocomplete="off">
+        <button id="similarSearchBtn">🔍 Find Similar</button>
+      </div>
+      <div class="list-container" id="similarResults"></div>
+      <div style="margin-top:16px;padding:12px;background:var(--bg-card);border-radius:8px;font-size:12px;color:var(--text-muted);">
+        <strong>How it works:</strong> TF-IDF based semantic search across all indexed CVE descriptions. Finds CVEs with similar language patterns, vulnerability types, and affected technologies.
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Reports -->
+  <div class="tab-content" id="tab-reports">
+    <div class="reports-grid">
+      <div class="trend-card wide">
+        <div class="panel-header"><h2>📋 Weekly Security Summary</h2></div>
+        <div class="list-container" id="weeklySummary"></div>
+      </div>
+      <div class="trend-card">
+        <div class="panel-header"><h2>🎯 Attack Surface Overview</h2></div>
+        <div class="list-container" id="attackSurface"></div>
+      </div>
     </div>
   </div>
 
   <!-- Alert Toast -->
   <div class="alert-toast" id="alertToast" style="display:none;">
     <div class="toast-icon" id="toastIcon">🚨</div>
-    <div class="toast-content">
-      <div class="toast-title" id="toastTitle"></div>
-      <div class="toast-message" id="toastMessage"></div>
-    </div>
+    <div class="toast-content"><div class="toast-title" id="toastTitle"></div><div class="toast-message" id="toastMessage"></div></div>
     <button class="toast-close" id="toastClose">✕</button>
   </div>
 
-  <!-- Footer -->
   <footer class="footer">
-    <span>VulnScope v2 — Data from NVD, ExploitDB, CISA KEV, GitHub Advisories</span>
+    <span>VulnScope v2.5 — NVD · EPSS · ExploitDB · CISA KEV · GitHub Advisories · MITRE ATT&CK · ML Risk Engine</span>
     <span class="footer-dot">·</span>
     <span id="lastUpdated">Last fetch: --</span>
   </footer>
 </div>
-
 <script src="/static/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VulnScope v2 — Real-Time CVE Feed</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <h1>🔴 VulnScope <span class="version">v2</span></h1>
+      <span class="subtitle">Real-Time CVE Feed & Exploit Correlation</span>
+    </div>
+    <div class="header-right">
+      <div class="connection-status" id="wsStatus">
+        <span class="dot"></span>
+        <span class="status-text">Connecting...</span>
+      </div>
+      <div class="live-badge">LIVE</div>
+      <button class="btn-icon" id="themeToggle" title="Toggle theme">🌓</button>
+    </div>
+  </header>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card critical">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-info">
+        <span class="stat-value" id="statCritical">0</span>
+        <span class="stat-label">Critical</span>
+      </div>
+    </div>
+    <div class="stat-card high">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-info">
+        <span class="stat-value" id="statHigh">0</span>
+        <span class="stat-label">High</span>
+      </div>
+    </div>
+    <div class="stat-card exploit">
+      <div class="stat-icon">💥</div>
+      <div class="stat-info">
+        <span class="stat-value" id="statExploits">0</span>
+        <span class="stat-label">With Exploits</span>
+      </div>
+    </div>
+    <div class="stat-card total">
+      <div class="stat-icon">📦</div>
+      <div class="stat-info">
+        <span class="stat-value" id="statTotal">0</span>
+        <span class="stat-label">Total CVEs</span>
+      </div>
+    </div>
+    <div class="stat-card ransomware">
+      <div class="stat-icon">☠️</div>
+      <div class="stat-info">
+        <span class="stat-value" id="statRansomware">0</span>
+        <span class="stat-label">Ransomware</span>
+      </div>
+    </div>
+    <div class="stat-card kev">
+      <div class="stat-icon">🛡️</div>
+      <div class="stat-info">
+        <span class="stat-value" id="statKEV">0</span>
+        <span class="stat-label">CISA KEV</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search CVEs, vendors, descriptions..." autocomplete="off">
+      <button id="searchBtn">🔍</button>
+    </div>
+    <div class="filters">
+      <select id="severityFilter">
+        <option value="">All Severities</option>
+        <option value="CRITICAL">🔥 Critical</option>
+        <option value="HIGH">⚠️ High</option>
+        <option value="MEDIUM">⚡ Medium</option>
+        <option value="LOW">🔵 Low</option>
+      </select>
+      <select id="exploitFilter">
+        <option value="">All CVEs</option>
+        <option value="true">Exploits Available</option>
+        <option value="false">No Exploits</option>
+      </select>
+      <select id="channelFilter">
+        <option value="all">All Channels</option>
+        <option value="critical">Critical Only</option>
+        <option value="high">High Only</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Live Feed -->
+    <div class="feed-panel">
+      <div class="panel-header">
+        <h2>📡 Live CVE Feed</h2>
+        <span class="feed-counter" id="feedCounter">0 new</span>
+      </div>
+      <div class="feed-container" id="cveFeed">
+        <div class="feed-empty">
+          <div class="empty-icon">🛰️</div>
+          <p>Waiting for CVE data...</p>
+          <p class="hint">Feed updates automatically every 5 minutes from NVD</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+      <div class="panel-header">
+        <h2>📋 CVE Details</h2>
+        <button class="btn-close" id="closeDetail">✕</button>
+      </div>
+      <div class="detail-placeholder">
+        <div class="placeholder-icon">👈</div>
+        <p>Select a CVE from the feed to view details</p>
+      </div>
+      <div class="detail-content" id="detailContent" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Alert Toast -->
+  <div class="alert-toast" id="alertToast" style="display:none;">
+    <div class="toast-icon" id="toastIcon">🚨</div>
+    <div class="toast-content">
+      <div class="toast-title" id="toastTitle"></div>
+      <div class="toast-message" id="toastMessage"></div>
+    </div>
+    <button class="toast-close" id="toastClose">✕</button>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>VulnScope v2 — Data from NVD, ExploitDB, CISA KEV, GitHub Advisories</span>
+    <span class="footer-dot">·</span>
+    <span id="lastUpdated">Last fetch: --</span>
+  </footer>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
